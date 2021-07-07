@@ -156,7 +156,9 @@ object CourseUtils {
     val mergeReportCommand = Seq("bash", "-c",
       s"source ${virtualEnvDir.get}/bin/activate; " +
         s"dataproducts report_merger --report_config='$mergeConfigStr'")
-    JobLogger.log(s"Merge report script command:: $mergeReportCommand", None, INFO)
+    //JobLogger.log(s"Merge report script command:: $mergeReportCommand", None, INFO)
+    JobLogger.log(s"Merge report script command:: $mergeReportCommand", None, ERROR)
+   // print("Merge report script command:: $mergeReportCommand", None, INFO)
     val mergeReportExitCode = ScriptDispatcher.dispatch(mergeReportCommand)
     if (mergeReportExitCode == 0) {
       JobLogger.log(s"Merge report script::Success", None, INFO)
