@@ -36,7 +36,8 @@ object CourseEnrollmentModel extends BaseCourseMetrics[Empty, BaseCourseMetricsO
     if (data.count() > 0) {
       val configMap = config("reportConfig").asInstanceOf[Map[String, AnyRef]]
       val reportConfig = JSONUtils.deserialize[ReportConfig](JSONUtils.serialize(configMap))
-
+      for ((k,v) <- configMap) printf("key: %s, value: %s\n", k, v)
+      for ((k,v) <- reportConfig) printf("key: %s, value: %s\n", k, v)
       import sqlContext.implicits._
       reportConfig.output.map { f =>
           val df = data.toDF().na.fill(0L)
