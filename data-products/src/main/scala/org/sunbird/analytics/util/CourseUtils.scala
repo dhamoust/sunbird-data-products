@@ -88,7 +88,19 @@ object CourseUtils {
         col("status").as("status")
       )
   }
-
+  
+    def getUserEnrollmentDetails(spark: SparkSession, loadData: (SparkSession, Map[String, String]) => DataFrame): DataFrame = {
+    val sunbirdCoursesKeyspace = Constants.SUNBIRD_COURSES_KEY_SPACE
+    loadData(spark, Map("table" -> "user_enrolments", "keyspace" -> sunbirdCoursesKeyspace))
+      .select(
+        col("courseid").as("courseId"),
+        col("batchid").as("batchId"),
+        col("name").as("batchName"),
+        col("status").as("status")
+      )
+  }
+ 
+       
   def getTenantInfo(spark: SparkSession, loadData: (SparkSession, Map[String, String]) => DataFrame): DataFrame = {
     val sunbirdKeyspace = AppConf.getConfig("course.metrics.cassandra.sunbirdKeyspace")
     loadData(spark, Map("table" -> "organisation", "keyspace" -> sunbirdKeyspace)).select("slug","id")
