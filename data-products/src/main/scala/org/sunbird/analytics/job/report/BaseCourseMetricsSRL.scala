@@ -36,8 +36,12 @@ trait BaseCourseMetricsSRL[T <: AnyRef, A <: BaseCourseMetricsOutput, B <: AlgoO
     val courses = CourseUtils.getCourse(config)
     val courseBatch = CourseUtils.getCourseBatchDetails(spark, CourseUtils.loadData)
     val tenantInfo = CourseUtils.getTenantInfo(spark, CourseUtils.loadData)
+    val userEnrollments = CourseUtils.getUserEnrollmentDetails(spark, CourseUtils.loadData)
     val joinCourses = courses.join(courseBatch, (courses.col("identifier") === courseBatch.col("courseId")), "inner")
     val joinWithTenant = joinCourses.join(tenantInfo, joinCourses.col("channel") === tenantInfo.col("id"), "inner")
-    joinWithTenant.na.fill("unknown", Seq("slug")).select("courseName","batchName","status","slug", "courseId", "batchId")
+    val joinWithUserEmrollments = joinWithTenant.join(userEnrollments, joinWithTenant.col("batchid") === userEnrollments.col("batchid"), "inner")
+    
+   // joinWithTenant.na.fill("unknown", Seq("slug")).select("courseName","batchName","status","slug", "courseId", "batchId")
+    joinWithUserEmrollments.na.fill("unknown", Seq("slug")).select("courseName","batchName","status","slug", "courseId", "batchId", "completionpercentage")
   }
 }
