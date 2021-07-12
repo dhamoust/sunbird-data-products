@@ -63,11 +63,11 @@ object CourseEnrollmentSRLModel extends BaseCourseMetricsSRL[Empty, BaseCourseMe
     //val encoder = Encoders.product[ESResponse]
     //val courseInfo = courseCounts.as[ESResponse](encoder).rdd
 
-    val courseInfo = courseCounts.as[ESResponse](encoder).rdd
-    val courses = courseInfo.map(f => (f.batchId, f))
+   // val courseInfo = courseCounts.as[ESResponse](encoder).rdd
+    //val courses = courseInfo.map(f => (f.batchId, f))
     
     
-    val finalRDD = baseCourseMetricsOutput.leftOuterJoin(courses)
+    val finalRDD = baseCourseMetricsOutput.leftOuterJoin(completionCount)
     finalRDD.map(f => f._2)
   }
 
