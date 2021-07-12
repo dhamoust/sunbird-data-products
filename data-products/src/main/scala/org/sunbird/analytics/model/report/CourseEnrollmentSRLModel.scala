@@ -18,7 +18,7 @@ import org.sunbird.analytics.util.CourseUtils
 case class CourseEnrollmentOutput(date: String, courseName: String, batchName: String, status: String, enrollmentCount: BigInt, completionCount: BigInt, slug: String, reportName: String) extends AlgoOutput with Output
 case class ESResponse(participantCount: BigInt, completedCount: BigInt, batchId: String)
 
-object CourseEnrollmentSRLModel extends BaseCourseMetrics[Empty, BaseCourseMetricsOutput, CourseEnrollmentOutput, CourseEnrollmentOutput] with Serializable {
+object CourseEnrollmentSRLModel extends BaseCourseMetricsSRL[Empty, BaseCourseMetricsOutput, CourseEnrollmentOutput, CourseEnrollmentOutput] with Serializable {
 
   implicit val className: String = "org.ekstep.analytics.model.CourseEnrollmentSRLModel"
   override def name: String = "CourseEnrollmentSRLModel"
@@ -54,14 +54,19 @@ object CourseEnrollmentSRLModel extends BaseCourseMetrics[Empty, BaseCourseMetri
   def getCourseEnrollmentOutput(events: RDD[BaseCourseMetricsOutput])(implicit sc: SparkContext, fc: FrameworkContext, sqlContext: SQLContext): RDD[(BaseCourseMetricsOutput, Option[ESResponse])] =  {
     val batchId = events.collect().map(f => f.batchId)
     val courseId = events.collect().map(f => f.courseId)
+    
+    val completionCount =   events.collect().map(f => f.completionpercentage)
 
-    val courseCounts = getCourseBatchCounts(JSONUtils.serialize(courseId),JSONUtils.serialize(batchId))
+    //val courseCounts = getCourseBatchCounts(JSONUtils.serialize(courseId),JSONUtils.serialize(batchId))
     val baseCourseMetricsOutput = events.map(f=> (f.batchId,f))
 
-    val encoder = Encoders.product[ESResponse]
-    val courseInfo = courseCounts.as[ESResponse](encoder).rdd
+    //val encoder = Encoders.product[ESResponse]
+    //val courseInfo = courseCounts.as[ESResponse](encoder).rdd
 
+    val courseInfo = courseCounts.as[ESResponse](encoder).rdd
     val courses = courseInfo.map(f => (f.batchId, f))
+    
+    
     val finalRDD = baseCourseMetricsOutput.leftOuterJoin(courses)
     finalRDD.map(f => f._2)
   }
